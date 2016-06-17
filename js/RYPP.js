@@ -69,6 +69,7 @@ var RYPP = (function($, undefined) {
       this.DOM.$videoc = this.DOM.$el.find('.RYPP-video');
       this.DOM.$title  = this.DOM.$el.find('.RYPP-title');
       this.DOM.$desc   = this.DOM.$el.find('.RYPP-desc');
+      this.DOM.$poster = this.DOM.$el.find('.RYPP-poster');
 
       // Unique player ID
       this.data.player_uid = (Math.random().toString(16).substr(2,8));
@@ -88,6 +89,18 @@ var RYPP = (function($, undefined) {
     },
 
     onYouTubeIframeAPIReady: function() {
+
+      var that = this;
+
+      this.DOM.$videoc.on('click', function(evt) {
+        evt.preventDefault();
+        that.DOM.$videoc.css('background-image', 'none');
+        that.DOM.$el.find('.RYPP-video-player').css('display','block');
+        that.ytplayer.playVideo();
+      });
+
+      this.DOM.$videoc.css('background-image', 'url(http://animals.sandiegozoo.org/sites/default/files/juicebox_slides/koala_ecalypt.jpg)');
+
       if( this.options.update_title_desc ) {
         this.updateTitleDesc();
       }
@@ -146,7 +159,7 @@ var RYPP = (function($, undefined) {
         playerVars: {
           // controls: 0,
           // showinfo: 0 ,
-          autoplay: 0,
+          autoplay: 1,
           enablejsapi: 1,
           rel: 0,
           modestbranding: 1,
@@ -167,7 +180,7 @@ var RYPP = (function($, undefined) {
     },
 
     // Ready to play
-    onPlayerReady: function() {
+    onPlayerReady: function(player) {
       this.startPlayList();
     },
 
@@ -177,7 +190,6 @@ var RYPP = (function($, undefined) {
         that = this;
 
       if (typeof e !== 'undefined') {
-        console.log('state',e);
         // On video loaded?
         if(e.data === YT.PlayerState.PLAYING && this.data.firsttime) {
           if(!this.options.autoplay && !this.data.ismobile) { // Is desktop
@@ -242,6 +254,8 @@ var RYPP = (function($, undefined) {
             that.getVideosFrom('videolist',vl);
 
           } else if (data.kind === 'youtube#videoListResponse') {
+
+            //console.log('loaded',data);
 
             // Videos froma  Videolist
             for (var i = 0, len = data.items.length; i < len; i++) {
