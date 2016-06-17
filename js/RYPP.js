@@ -80,8 +80,8 @@ var RYPP = (function($, undefined) {
           tag = document.createElement('script'),
           hID = document.getElementsByTagName('head')[0];
         // Add youtube API in HEAD
-        // tag.src = "https://www.youtube.com/iframe_api";
-        tag.src = 'https://www.youtube.com/player_api';
+        tag.src = "https://www.youtube.com/iframe_api";
+        //tag.src = 'https://www.youtube.com/player_api';
         hID.appendChild(tag);
       }
 
@@ -146,7 +146,7 @@ var RYPP = (function($, undefined) {
         playerVars: {
           // controls: 0,
           // showinfo: 0 ,
-          // autoplay: 0,
+          autoplay: 0,
           enablejsapi: 1,
           rel: 0,
           modestbranding: 1,
@@ -177,9 +177,9 @@ var RYPP = (function($, undefined) {
         that = this;
 
       if (typeof e !== 'undefined') {
-
+        console.log('state',e);
         // On video loaded?
-        if(e.data === -1 && this.data.firsttime) {
+        if(e.data === YT.PlayerState.PLAYING && this.data.firsttime) {
           if(!this.options.autoplay && !this.data.ismobile) { // Is desktop
             this.ytplayer.pauseVideo();
             this.data.firsttime = false;
@@ -190,7 +190,7 @@ var RYPP = (function($, undefined) {
         }
 
         // If mobile and stored in buffer we STOP the video in mobile devices
-        if(e.data === 3 && this.data.ismobile && this.data.firsttime) {
+        if(e.data === YT.PlayerState.BUFFERING && this.data.ismobile && this.data.firsttime) {
           setTimeout(function(){
             that.ytplayer.stopVideo();
             that.data.firsttime = false;
@@ -199,7 +199,7 @@ var RYPP = (function($, undefined) {
 
         // Play next only if not mobile
         var next = null;
-        if(e.data === 0 && !this.data.ismobile && this.options.autonext) {
+        if(e.data === YT.PlayerState.ENDED && !this.data.ismobile && this.options.autonext) {
           next = this.DOM.$items.find('li.selected').next();
           if (next.length === 0 && this.options.loop) {
             next = this.DOM.$items.find('li').first();
@@ -310,13 +310,13 @@ var RYPP = (function($, undefined) {
 
 // YOUTUBE API CALLBACK
 function onYouTubeIframeAPIReady() {
-  $('[data-rypp]').each(function(idx, el) {
-    $(el)[0].rypp_data_obj.onYouTubeIframeAPIReady();
+  jQuery('[data-rypp]').each(function(idx, el) {
+    jQuery(el)[0].rypp_data_obj.onYouTubeIframeAPIReady();
   });
 }
 
 // JQuery hook
-$.fn.rypp = function(api_key, options) {
+jQuery.fn.rypp = function(api_key, options) {
   return this.each(function() {
     // Store object in DOM element
     this.rypp_data_obj = new RYPP(this, api_key, options);
